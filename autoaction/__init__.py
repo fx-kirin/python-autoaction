@@ -14,8 +14,16 @@ class Autoaction(object):
     def sleep(self, sec):
         time.sleep(sec)
     
-    def get_image(self, image_path):
-        return cv2.imread(image_path)
+    def load_image(self, image_path):
+        if not os.path.exists(image_path):
+            raise RuntimeError("image_path not exists. path:%s"%(image_path))
+        
+        result = cv2.imread(image_path)
+        
+        if result == None:
+            raise RuntimeError("image_path is not valid image file. path:%s"%(image_path))
+        
+        return result
         
     def search_template(self, template_input, quality=0.9, method=cv2.TM_CCORR_NORMED):
         sscv = xutils.take_screenshot()
@@ -26,16 +34,18 @@ class Autoaction(object):
                 template_path = template_input
             else:
                 template_path = os.path.join(self.image_dir, template_input)
-            template = cv2.imread(template_path)
+            template = self.load_image(template_path)
         elif isinstance(template_input, numpy.ndarray):
             template = template_input
-            
+        else:
+            raise RuntimeError("template_input must be string as image name or path, or numpy.array as image binary.")
+        
         return xutils.image_search(sscv, template, quality, method)
     
     def click(self, x, y):
         return xutils.click(x, y)
     
-    def click_image(self, template, x, y, quality=0.9, method=cv2.TM_CCORR_NORMED):
+    def click_image(self, template, x=0, y=0, quality=0.9, method=cv2.TM_CCORR_NORMED):
         result = self.search_template(template, quality, method)
         if result is None:
             raise RuntimeError("Couldn't find the template.")
