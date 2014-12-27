@@ -16,7 +16,7 @@ class Autoaction(object):
     
     def load_image(self, image_path):
         if not os.path.exists(image_path):
-            raise RuntimeError("image_path not exists. path:%s"%(image_path))
+            raise IOError("image_path not exists. path:%s"%(image_path))
         
         result = cv2.imread(image_path)
         
